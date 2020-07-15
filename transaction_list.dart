@@ -5,14 +5,16 @@ import '../models/transaction.dart';
 
 class TransactionList extends StatelessWidget {
   final List<Transaction> transactions;
+  final Function deleteTx;
 
-  TransactionList(this.transactions);
+  TransactionList(this.transactions, this.deleteTx);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        height: 300,
-        child: transactions.isEmpty ? Center(
+        height: 440,
+        child: transactions.isEmpty
+            ? Center(
                 child: Column(
                   children: <Widget>[
                     Text(
@@ -32,44 +34,42 @@ class TransactionList extends StatelessWidget {
             : ListView.builder(
                 itemBuilder: (ctx, index) {
                   return Card(
-                    child: Row(children: <Widget>[
-                      Container(
-                        width: 100,
-                        margin:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.black,
-                            width: 2,
-                          ),
-                        ),
-                        padding: EdgeInsets.all(10),
-                        child: Text(
-                          '${transactions[index].cal.toStringAsFixed(1)} cal',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            '${transactions[index].title}',
-                            style: TextStyle(fontSize: 15),
-                          ),
-                          Text(
-                            '${DateFormat.yMd().format(transactions[index].date)}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                              fontSize: 12,
+                    margin: EdgeInsets.symmetric(vertical: 7, horizontal: 5),
+                    elevation: 5,
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        radius: 30,
+                        child: Padding(
+                          padding: EdgeInsets.all(6),
+                          child: FittedBox(
+                            child: RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
+                                  text: '${transactions[index].cal} \n',
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text: 'cal',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ]),
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ]),
+                      title: Text(
+                        '${transactions[index].title}',
+                      ),
+                      subtitle: Text(
+                        DateFormat.yMd().format(transactions[index].date),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.delete),
+                        color: Colors.red,
+                        onPressed: () => deleteTx(transactions[index].id),
+                      ),
+                    ),
                   );
                 },
                 itemCount: transactions.length,
