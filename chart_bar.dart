@@ -16,13 +16,15 @@ class ChartBar extends StatelessWidget {
         ),
         SizedBox(height: 4),
         Container(
-          height: 60,
+          height: 70,
           width: 10,
           child: Stack(children: <Widget>[
             Container(
               decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey, width: 1)),
-              color: Color.fromRGBO(200, 200, 200, 0.9),
+                  border: Border.all(color: Colors.grey, width: 1.0),
+                  color: Color.fromRGBO(200, 200, 200, 0.9),
+                  borderRadius: BorderRadius.circular(10),
+                  ),
             ),
             FractionallySizedBox(
               heightFactor: caloriePctOfTotal,
