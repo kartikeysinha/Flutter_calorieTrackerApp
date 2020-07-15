@@ -16,8 +16,8 @@ class CalorieApp extends StatelessWidget {
     return MaterialApp(
       title: "Calorie Tracker",
       theme: ThemeData(
-          primarySwatch: Colors.yellow,
-          accentColor: Colors.red,
+          primarySwatch: Colors.purple,
+          accentColor: Colors.redAccent,
           textTheme: TextTheme(
             button: TextStyle(color: Colors.yellow),
           )),
@@ -67,15 +67,23 @@ class _MyHomePageState extends State<MyHomePage> {
     }).toList();
   }
 
-  void _addNewTransaction(String txTitle, double txCal) {
+  void _addNewTransaction(String txTitle, double txCal, DateTime chosenDate) {
     final newTx = Transaction(
         title: txTitle,
         cal: txCal,
-        date: DateTime.now(),
+        date: chosenDate,
         id: DateTime.now().toString());
 
     setState(() {
       _usertransactions.add(newTx);
+    });
+  }
+
+  void _deleteTransaction(String id) {
+    setState(() {
+      _usertransactions.removeWhere((element) {
+        return element.id == id;
+      });
     });
   }
 
@@ -100,9 +108,10 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 Card(child: Chart(_recentTransactions)),
                 Container(
+                  height: 440,
                   child: Column(
                     children: <Widget>[
-                      TransactionList(_usertransactions),
+                      TransactionList(_usertransactions, _deleteTransaction),
                     ],
                   ),
                 ),
