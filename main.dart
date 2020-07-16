@@ -1,5 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter/cupertino.dart';
 
 import './models/transaction.dart';
 import './widgets/transaction_list.dart';
@@ -32,27 +34,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Transaction> _usertransactions = [
-    /*Transaction(
-      id: 't1',
-      title: 'Apple',
-      cal: 100,
-      date: DateTime.now(),
-    ),
-    Transaction(
-      id: 't2',
-      title: 'Banana',
-      cal: 50,
-      date: DateTime.now(),
-    ), */
-  ];
+  final List<Transaction> _usertransactions = [];
+  bool _showChart = false;
 
   void _startAddNewTransaction(BuildContext ctx) {
     showModalBottomSheet(
         context: ctx,
         builder: (bctx) {
           return GestureDetector(
-            onTap: () {},
+            onTap: () {return NewTransaction(_addNewTransaction);},
             child: NewTransaction(_addNewTransaction),
             behavior: HitTestBehavior.opaque,
           );
@@ -89,39 +79,198 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('Calorie Counter'),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(
-                Icons.add,
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    final PreferredSizeWidget appBar = Platform.isIOS
+        ? CupertinoNavigationBar(
+            middle: Text('Calorie Counter'),
+            trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              GestureDetector(
+                child: Icon(CupertinoIcons.add),
+                onTap: () => _startAddNewTransaction(context),
+              )
+            ]),
+          )
+        : AppBar(
+            title: Text('Calorie Counter'),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Icons.add,
+                ),
+                onPressed: () => _startAddNewTransaction(context),
               ),
-              onPressed: () => _startAddNewTransaction(context),
-            ),
-          ],
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Card(child: Chart(_recentTransactions)),
+            ],
+          );
+    final txListWidget = Container(
+      child: Column(
+        children: <Widget>[
+          Container(
+            height: 0.6 *
+                (MediaQuery.of(context).size.height -
+                    appBar.preferredSize.height -
+                    MediaQuery.of(context).padding.top),
+            child: TransactionList(_usertransactions, _deleteTransaction),
+          ),
+        ],
+      ),
+    );
+    final pageBody = SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (isLandscape)
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Text(
+                    'Show List',
+                    style: TextStyle(
+                        fontSize: 15 * MediaQuery.of(context).textScaleFactor),
+                  ),
+                  Switch.adaptive(
+                    value: _showChart,
+                    onChanged: (val) {
+                      setState(() {
+                        _showChart = val;
+                      });
+                    },
+                  ),
+                  Text(
+                    'Show Chart',
+                    style: TextStyle(
+                        fontSize: 15 * MediaQuery.of(context).textScaleFactor),
+                  ),
+                ]),
+              if (isLandscape)
+                _showChart
+                    ? Container(
+                        child: Card(
+                          child: Container(
+                            height: 0.7 *
+                                (MediaQuery.of(context).size.height -
+                                    appBar.preferredSize.height -
+                                    MediaQuery.of(context).padding.top),
+                            child: Chart(_recentTransactions),
+                          ),
+                        ),
+                      )
+                    : Container(
+                        child: Column(
+                          children: <Widget>[
+                            Container(
+                              height: 0.8 *
+                                  (MediaQuery.of(context).size.height -
+                                      appBar.preferredSize.height -
+                                      MediaQuery.of(context).padding.top),
+                              child: TransactionList(
+                                  _usertransactions, _deleteTransaction),
+                            ),
+                          ],
+                        ),
+                      ),
+              if (!isLandscape)
                 Container(
-                  height: 440,
-                  child: Column(
-                    children: <Widget>[
-                      TransactionList(_usertransactions, _deleteTransaction),
-                    ],
+                  child: Card(
+                    child: Container(
+                      height: 0.3 *
+                          (MediaQuery.of(context).size.height -
+                              appBar.preferredSize.height -
+                              MediaQuery.of(context).padding.top),
+                      child: Chart(_recentTransactions),
+                    ),
                   ),
                 ),
-                Center(
-                  child: FloatingActionButton(
-                    child: Icon(Icons.add),
-                    onPressed: () => _startAddNewTransaction(context),
-                  ),
-                )
-              ]),
-        ));
+              if (!isLandscape) txListWidget,
+            ]),
+      ),
+    );
+    return Platform.isIOS
+        ? CupertinoPageScaffold(
+            child: pageBody,
+            navigationBar: appBar,
+          )
+        : Scaffold(
+            appBar: appBar,
+            body: SingleChildScrollView(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (isLandscape)
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Show List',
+                              style: TextStyle(
+                                  fontSize: 15 *
+                                      MediaQuery.of(context).textScaleFactor),
+                            ),
+                            Switch.adaptive(
+                              value: _showChart,
+                              onChanged: (val) {
+                                setState(() {
+                                  _showChart = val;
+                                });
+                              },
+                            ),
+                            Text(
+                              'Show Chart',
+                              style: TextStyle(
+                                  fontSize: 15 *
+                                      MediaQuery.of(context).textScaleFactor),
+                            ),
+                          ]),
+                    if (isLandscape)
+                      _showChart
+                          ? Container(
+                              child: Card(
+                                child: Container(
+                                  height: 0.6 *
+                                      (MediaQuery.of(context).size.height -
+                                          appBar.preferredSize.height -
+                                          MediaQuery.of(context).padding.top),
+                                  child: Chart(_recentTransactions),
+                                ),
+                              ),
+                            )
+                          : Container(
+                              child: Column(
+                                children: <Widget>[
+                                  Container(
+                                    height: 0.6 *
+                                        (MediaQuery.of(context).size.height -
+                                            appBar.preferredSize.height -
+                                            MediaQuery.of(context).padding.top),
+                                    child: TransactionList(
+                                        _usertransactions, _deleteTransaction),
+                                  ),
+                                ],
+                              ),
+                            ),
+                    if (!isLandscape)
+                      Container(
+                        child: Card(
+                          child: Container(
+                            height: 0.3 *
+                                (MediaQuery.of(context).size.height -
+                                    appBar.preferredSize.height -
+                                    MediaQuery.of(context).padding.top),
+                            child: Chart(_recentTransactions),
+                          ),
+                        ),
+                      ),
+                    if (!isLandscape) txListWidget,
+                    Center(
+                      child: Platform.isIOS
+                          ? Container()
+                          : FloatingActionButton(
+                              child: Icon(Icons.add),
+                              onPressed: () => _startAddNewTransaction(context),
+                            ),
+                    )
+                  ]),
+            ));
   }
 }

@@ -28,51 +28,39 @@ class Chart extends StatelessWidget {
     }).reversed.toList();
   }
 
-  double get totalCalorie {
-    return groupedTransactionValues.fold(0.0, (sum, item) {
-      return sum + item['cal'];
+  double get maxCalorie {
+    return groupedTransactionValues.fold(0.0, (maximum, item) {
+      if (maximum >= item['cal']){
+        return maximum;
+      } else {
+        return item['cal'];
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 6,
-      margin: EdgeInsets.all(10),
-      child: Container(
-        padding: EdgeInsets.all(10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: groupedTransactionValues.map((data) {
-            return Flexible(
-              fit: FlexFit.tight,
-                child: ChartBar(
-                data['day'],
-                data['cal'], 
-                totalCalorie == 0 ? 0.0 : (data['cal'] as double) / totalCalorie,
-              ),
-            );
-          }).toList(),
-        ),
-      )
-    );
-  }
-}
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 6,
-      margin: EdgeInsets.all(20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: groupedTransactionValues.map((data) {
-          return ChartBar(
-            data['day'],
-            data['cal'], 
-            totalCalorie == 0 ? 0.0 : (data['cal'] as double) / totalCalorie,
-          );
-        }).toList()
-      )
+    return Container(
+      child: Card(
+        elevation: 6,
+        margin: EdgeInsets.all(10),
+        child: Container(
+          padding: EdgeInsets.all(10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: groupedTransactionValues.map((data) {
+              return Flexible(
+                fit: FlexFit.tight,
+                  child: ChartBar(
+                  data['day'],
+                  data['cal'], 
+                  maxCalorie == 0 ? 0.0 : (data['cal'] as double) / maxCalorie,
+                ),
+              );
+            }).toList(),
+          ),
+        )
+      ),
     );
   }
 }

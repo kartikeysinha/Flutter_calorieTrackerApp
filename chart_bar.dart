@@ -9,22 +9,32 @@ class ChartBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    final curScaleFactor = MediaQuery.of(context).textScaleFactor;
+    return LayoutBuilder(builder: (ctx, constraints) {
+      return Column(
       children: <Widget>[
-        FittedBox(
-          child: Text('${calorieConsumed.toStringAsFixed(0)}'),
-        ),
-        SizedBox(height: 4),
         Container(
-          height: 70,
+          height: constraints.maxHeight * 0.1,
+          child: FittedBox(
+            child: Text(
+              '${calorieConsumed.toStringAsFixed(0)}',
+              style: TextStyle(
+                fontSize: 10 * curScaleFactor,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: constraints.maxHeight * 0.075),
+        Container(
+          height: constraints.maxHeight * 0.65,
           width: 10,
           child: Stack(children: <Widget>[
             Container(
               decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey, width: 1.0),
-                  color: Color.fromRGBO(200, 200, 200, 0.9),
-                  borderRadius: BorderRadius.circular(10),
-                  ),
+                border: Border.all(color: Colors.grey, width: 1.0),
+                color: Color.fromRGBO(200, 200, 200, 0.9),
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             FractionallySizedBox(
               heightFactor: caloriePctOfTotal,
@@ -35,9 +45,18 @@ class ChartBar extends StatelessWidget {
             )
           ]),
         ),
-        SizedBox(height: 4),
-        Text(label)
+        SizedBox(height: constraints.maxHeight * 0.075),
+        Container(
+          height: constraints.maxHeight * 0.1,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 15 * curScaleFactor,
+            ),
+          ),
+        )
       ],
     );
+    },);
   }
 }
